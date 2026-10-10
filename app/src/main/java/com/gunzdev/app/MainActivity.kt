@@ -161,18 +161,20 @@ fun ColumnScope.LoadingScreen(onNext: () -> Unit) {
 fun ColumnScope.LoginScreen(onDone: (String) -> Unit) {
     val ctx = LocalContext()
     var err by remember { mutableStateOf("") }
+    var showName by remember { mutableStateOf(false) }
+    var name by remember { mutableStateOf("") }
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { r ->
         try {
             val acc = GoogleSignIn.getSignedInAccountFromIntent(r.data).getResult(ApiException::class.java)
             onDone(acc.email ?: "")
         } catch (e: ApiException) {
-            err = "Login gagal (kode ${e.statusCode}). Kode 10 = SHA-1 belum didaftarkan di Google Cloud."
+            err = "Login Google gagal (kode ${e.statusCode}). Kamu bisa pakai "Masuk dengan Nama" dulu."
         } catch (e: Exception) { err = "Login dibatalkan." }
     }
     Spacer(Modifier.weight(1f))
     Astronaut(180)
     Text("Selamat datang, Astronot!", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color.White)
-    Text("Hubungkan akun Google untuk melanjutkan. Login wajib.", color = Color.White.copy(.7f),
+    Text("Pilih salah satu cara login untuk melanjutkan.", color = Color.White.copy(.7f),
         textAlign = TextAlign.Center, modifier = Modifier.padding(vertical = 12.dp))
     Button(onClick = {
         val o = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build()
@@ -181,6 +183,19 @@ fun ColumnScope.LoginScreen(onDone: (String) -> Unit) {
     }, modifier = Modifier.fillMaxWidth().height(54.dp), shape = RoundedCornerShape(16.dp),
         colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color.Black)) {
         Text("G  Masuk dengan Google", fontWeight = FontWeight.Bold)
+    }
+    Spacer(Modifier.height(12.dp))
+    if (!showName) {
+        OutlinedButton(onClick = { showName = true }, modifier = Modifier.fillMaxWidth().height(54.dp), shape = RoundedCornerShape(16.dp)) {
+            Text("👤  Masuk dengan Nama", color = Color.White, fontWeight = FontWeight.Bold)
+        }
+    } else {
+        OutlinedTextField(name, { name = it }, label = { Text("Nama kamu") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+        Spacer(Modifier.height(8.dp))
+        Button(onClick = { onDone("nama:" + name.trim() + ":" + java.util.UUID.randomUUID().toString().take(6)) },
+            enabled = name.trim().length >= 2, modifier = Modifier.fillMaxWidth().height(54.dp), shape = RoundedCornerShape(16.dp)) {
+            Text("Lanjut", fontWeight = FontWeight.Bold)
+        }
     }
     if (err.isNotEmpty()) Text(err, color = Color(0xFFFF6B6B), modifier = Modifier.padding(top = 12.dp), textAlign = TextAlign.Center)
     Spacer(Modifier.weight(1f))
@@ -271,7 +286,7 @@ fun MainScreen(email: String, sp: android.content.SharedPreferences) {
             Image(painterResource(R.mipmap.ic_launcher), null, Modifier.size(44.dp).clip(RoundedCornerShape(12.dp)))
             Spacer(Modifier.width(10.dp))
             Column { Text("gunzdev", fontWeight = FontWeight.Black, color = Cyan, fontSize = 20.sp)
-                Text(email, color = Color.White.copy(.6f), fontSize = 12.sp) }
+                Text(if (email.startsWith("nama:")) email.removePrefix("nama:").substringBeforeLast(":") else email, color = Color.White.copy(.6f), fontSize = 12.sp) }
         }
         Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) { Astronaut(120) }
         OutlinedTextField(target, { target = it }, label = { Text("Nomor target (628xxxx)") }, singleLine = true, modifier = Modifier.fillMaxWidth())
