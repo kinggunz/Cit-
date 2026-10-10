@@ -133,7 +133,7 @@ fun Astronaut(size: Int = 200) {
 }
 
 @Composable
-fun LoadingScreen(onNext: () -> Unit) {
+fun ColumnScope.LoadingScreen(onNext: () -> Unit) {
     val prog = remember { Animatable(0f) }
     LaunchedEffect(Unit) { prog.animateTo(1f, tween(3000, easing = FastOutSlowInEasing)) }
     Spacer(Modifier.weight(1f))
@@ -158,7 +158,7 @@ fun LoadingScreen(onNext: () -> Unit) {
 }
 
 @Composable
-fun LoginScreen(onDone: (String) -> Unit) {
+fun ColumnScope.LoginScreen(onDone: (String) -> Unit) {
     val ctx = LocalContext()
     var err by remember { mutableStateOf("") }
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { r ->
