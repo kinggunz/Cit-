@@ -168,7 +168,7 @@ fun ColumnScope.LoginScreen(onDone: (String) -> Unit) {
             val acc = GoogleSignIn.getSignedInAccountFromIntent(r.data).getResult(ApiException::class.java)
             onDone(acc.email ?: "")
         } catch (e: ApiException) {
-            err = "Login Google gagal (kode ${e.statusCode}). Kamu bisa pakai "Masuk dengan Nama" dulu."
+            err = "Login Google gagal (kode ${e.statusCode}). Kamu bisa pakai tombol Masuk dengan Nama dulu."
         } catch (e: Exception) { err = "Login dibatalkan." }
     }
     Spacer(Modifier.weight(1f))
