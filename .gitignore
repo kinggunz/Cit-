@@ -1,0 +1,5 @@
+.gradle/
+build/
+backend/node_modules/
+backend/auth/
+local.properties
